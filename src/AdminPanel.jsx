@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Formik, Field, Form } from "formik";
 import { db, storage } from "./firebaseConfig";
 import { collection, doc, setDoc } from "firebase/firestore";
@@ -52,6 +52,8 @@ const AdminPanel = () => {
         deposit: "",
       },
     },
+
+    bookings: [],
   };
 
   const handleSubmit = async (values) => {
