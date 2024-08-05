@@ -52,8 +52,6 @@ const AdminPanel = () => {
         deposit: "",
       },
     },
-
-    bookings: [],
   };
 
   const handleSubmit = async (values) => {
