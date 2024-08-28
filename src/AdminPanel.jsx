@@ -3,8 +3,8 @@ import { Formik, Field, Form } from "formik";
 import { db, storage } from "./firebaseConfig";
 import { collection, doc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { v4 as uuidv4 } from 'uuid';
-import './AdminPanel.css';
+import { v4 as uuidv4 } from "uuid";
+import "./AdminPanel.css";
 
 const AdminPanel = () => {
   const [imageUrl, setImageUrl] = useState("");
@@ -32,9 +32,9 @@ const AdminPanel = () => {
     displacement: "",
     fuel_tank_capacity: "",
     // Features relevant to E-Scooter
-    range: "",  
-    battery_capacity: "",  
-    charging_time: "",  
+    range: "",
+    battery_capacity: "",
+    charging_time: "",
 
     // Pricing Details
     late_penalty: "",
@@ -169,13 +169,13 @@ const AdminPanel = () => {
                   }}
                 >
                   <option value="">Select Type</option>
-                  <option value="Petrol Scooter">Petrol Scooter</option>
-                  <option value="E-Scooter">E-Scooter</option>
-                  <option value="Petrol Bike">Petrol Bike</option>
+                  <option value="petrolScooter">Petrol Scooter</option>
+                  <option value="eScooter">E-Scooter</option>
+                  <option value="petrolBike">Petrol Bike</option>
                 </Field>
               </div>
 
-              {["Petrol Scooter", "Petrol Bike"].includes(vehicleType) && (
+              {["petrolScooter", "petrolBike"].includes(vehicleType) && (
                 <>
                   <div className="form-group mileage-group">
                     <label htmlFor="mileage">Mileage</label>
@@ -188,13 +188,15 @@ const AdminPanel = () => {
                   </div>
 
                   <div className="form-group fuel-tank-capacity-group">
-                    <label htmlFor="fuel_tank_capacity">Fuel Tank Capacity</label>
+                    <label htmlFor="fuel_tank_capacity">
+                      Fuel Tank Capacity
+                    </label>
                     <Field name="fuel_tank_capacity" type="text" />
                   </div>
                 </>
               )}
 
-              {vehicleType === "E-Scooter" && (
+              {vehicleType === "eScooter" && (
                 <>
                   <div className="form-group range-group">
                     <label htmlFor="range">Range</label>
@@ -224,36 +226,62 @@ const AdminPanel = () => {
 
               <div className="form-group daily-price-group">
                 <label htmlFor="package.daily.price">Daily Price</label>
-                <Field name="package.daily.price" type="text" className="field-array"/>
+                <Field
+                  name="package.daily.price"
+                  type="text"
+                  className="field-array"
+                />
               </div>
 
               <div className="form-group daily-deposit-group">
                 <label htmlFor="package.daily.deposit">Daily Deposit</label>
-                <Field name="package.daily.deposit" type="text" className="field-array"/>
+                <Field
+                  name="package.daily.deposit"
+                  type="text"
+                  className="field-array"
+                />
               </div>
 
               <div className="form-group weekly-price-group">
                 <label htmlFor="package.weekly.price">Weekly Price</label>
-                <Field name="package.weekly.price" type="text" className="field-array"/>
+                <Field
+                  name="package.weekly.price"
+                  type="text"
+                  className="field-array"
+                />
               </div>
 
               <div className="form-group weekly-deposit-group">
                 <label htmlFor="package.weekly.deposit">Weekly Deposit</label>
-                <Field name="package.weekly.deposit" type="text" className="field-array"/>
+                <Field
+                  name="package.weekly.deposit"
+                  type="text"
+                  className="field-array"
+                />
               </div>
 
               <div className="form-group monthly-price-group">
                 <label htmlFor="package.monthly.price">Monthly Price</label>
-                <Field name="package.monthly.price" type="text" className="field-array"/>
+                <Field
+                  name="package.monthly.price"
+                  type="text"
+                  className="field-array"
+                />
               </div>
 
               <div className="form-group monthly-deposit-group">
                 <label htmlFor="package.monthly.deposit">Monthly Deposit</label>
-                <Field name="package.monthly.deposit" type="text" className="field-array"/>
+                <Field
+                  name="package.monthly.deposit"
+                  type="text"
+                  className="field-array"
+                />
               </div>
             </div>
 
-            <button type="submit" className="submit-button">Submit</button>
+            <button type="submit" className="submit-button">
+              Submit
+            </button>
           </Form>
         )}
       </Formik>
