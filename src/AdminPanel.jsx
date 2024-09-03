@@ -109,6 +109,7 @@ const AdminPanel = () => {
                   <option value="Aprilia">Aprilia</option>
                   <option value="Bounce Infinity">Bounce Infinity</option>
                   <option value="Kawasaki">Kawasaki</option>
+                  <option value="Triumph">Triumph</option>
                 </Field>
               </div>
 
@@ -172,10 +173,13 @@ const AdminPanel = () => {
                   <option value="petrolScooter">Petrol Scooter</option>
                   <option value="eScooter">E-Scooter</option>
                   <option value="petrolBike">Petrol Bike</option>
+                  <option value="premiumBike">Premium Bike</option>
                 </Field>
               </div>
 
-              {["petrolScooter", "petrolBike"].includes(vehicleType) && (
+              {["petrolScooter", "petrolBike", "premiumBike"].includes(
+                vehicleType
+              ) && (
                 <>
                   <div className="form-group mileage-group">
                     <label htmlFor="mileage">Mileage</label>
@@ -223,6 +227,30 @@ const AdminPanel = () => {
                 <label htmlFor="late_penalty">Late Penalty</label>
                 <Field name="late_penalty" type="text" />
               </div>
+
+              {vehicleType === "premiumBike" && (
+                <>
+                  <div className="form-group hourly-price-group">
+                    <label htmlFor="package.hourly.price">Hourly Price</label>
+                    <Field
+                      name="package.hourly.price"
+                      type="text"
+                      className="field-array"
+                    />
+                  </div>
+
+                  <div className="form-group hourly-deposit-group">
+                    <label htmlFor="package.hourly.deposit">
+                      Hourly Deposit
+                    </label>
+                    <Field
+                      name="package.hourly.deposit"
+                      type="text"
+                      className="field-array"
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="form-group daily-price-group">
                 <label htmlFor="package.daily.price">Daily Price</label>
