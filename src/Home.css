@@ -1,0 +1,41 @@
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 2em;
+  margin-bottom: 20px;
+}
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.bento-item {
+  text-align: center;
+}
+
+.bento-item button {
+  width: 100%;
+  padding: 15px;
+  background-color: #FDD505;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 5px;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.bento-item button:hover {
+  background-color: #FDD505;
+}
+
+.bento-item button:focus {
+  outline: none;
+}
