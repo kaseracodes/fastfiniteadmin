@@ -34,7 +34,7 @@ const BookingsList = () => {
       const querySnapshot = await getDocs(q);
       const bookingsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setBookings(bookingsData);
-      alert('Bookings successfully fetched!');
+      // alert('Bookings successfully fetched!');
     } catch (error) {
       console.error('Error fetching bookings: ', error);
     }
