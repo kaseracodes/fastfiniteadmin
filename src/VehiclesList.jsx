@@ -1,8 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getFirestore, collection, getDocs } from 'firebase/firestore'; // Import Firestore functions
+import { getFirestore, collection, getDocs, doc, deleteDoc } from 'firebase/firestore'; // Import Firestore functions
 import { db } from "./firebaseConfig"; // Adjust path for Firebase config
 import './VehiclesList.css';
+
+const handleDelete = async (id) => {
+  const confirmDelete = window.confirm("Are you sure you want to delete this vehicle?");
+  if (confirmDelete) {
+    try {
+      await deleteDoc(doc(db, "vehicles", id)); // Deleting the vehicle document from Firestore
+      alert("Vehicle deleted successfully");
+      // Optionally, you can refresh the list of vehicles after deletion
+      window.location.reload(); // Simple way to reload data after delete
+    } catch (error) {
+      console.error("Error deleting vehicle: ", error);
+      alert("Failed to delete the vehicle. Please try again.");
+    }
+  }
+};
 
 const PetrolScootersTable = ({ vehicles }) => {
 
@@ -43,7 +58,10 @@ const PetrolScootersTable = ({ vehicles }) => {
       <tbody>
         {vehicles.map((vehicle) => (
           <tr key={vehicle.id}>
-            <td> <button onClick={() => handleUpdate(vehicle.id)}>Update</button> </td>
+            <td> 
+              <button onClick={() => handleUpdate(vehicle.id)}>Update</button> 
+              <button onClick={() => handleDelete(vehicle.id)} className="delete-btn">Delete</button>
+            </td>
             <td>{vehicle.id}</td>
             <td>
               <img src={vehicle.image} alt={vehicle.name} className="vehicle-image" />
@@ -113,7 +131,10 @@ const PetrolBikesTable = ({ vehicles }) => {
       <tbody>
         {vehicles.map((vehicle) => (
           <tr key={vehicle.id}>
-            <td> <button onClick={() => handleUpdate(vehicle.id)}>Update</button> </td>
+            <td> 
+              <button onClick={() => handleUpdate(vehicle.id)}>Update</button> 
+              <button onClick={() => handleDelete(vehicle.id)} className="delete-btn">Delete</button>
+            </td>
             <td>{vehicle.id}</td>
             <td>
               <img src={vehicle.image} alt={vehicle.name} className="vehicle-image" />
@@ -183,7 +204,10 @@ const EScootersTable = ({ vehicles }) => {
       <tbody>
         {vehicles.map((vehicle) => (
           <tr key={vehicle.id}>
-            <td> <button onClick={() => handleUpdate(vehicle.id)}>Update</button> </td>
+            <td> 
+              <button onClick={() => handleUpdate(vehicle.id)}>Update</button> 
+              <button onClick={() => handleDelete(vehicle.id)} className="delete-btn">Delete</button>
+            </td>
             <td>{vehicle.id}</td>
             <td>
               <img src={vehicle.image} alt={vehicle.name} className="vehicle-image" />
@@ -255,7 +279,10 @@ const PremiumBikesTable = ({ vehicles }) => {
       <tbody>
         {vehicles.map((vehicle) => (
           <tr key={vehicle.id}>
-            <td> <button onClick={() => handleUpdate(vehicle.id)}>Update</button> </td>
+            <td> 
+              <button onClick={() => handleUpdate(vehicle.id)}>Update</button> 
+              <button onClick={() => handleDelete(vehicle.id)} className="delete-btn">Delete</button>
+            </td>
             <td>{vehicle.id}</td>
             <td>
               <img src={vehicle.image} alt={vehicle.name} className="vehicle-image" />
