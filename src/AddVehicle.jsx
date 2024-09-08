@@ -4,9 +4,9 @@ import { db, storage } from "./firebaseConfig";
 import { collection, doc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
-import "./AdminPanel.css";
+import "./AddVehicle.css";
 
-const AdminPanel = () => {
+const AddVehicle = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [vehicleType, setVehicleType] = useState("");
 
@@ -80,7 +80,7 @@ const AdminPanel = () => {
 
   return (
     <div className="admin-panel-container">
-      <h1>Admin Panel</h1>
+      <h1>Add New Vehicle</h1>
       <Formik initialValues={initialValues} onSubmit={handleSubmit}>
         {({ setFieldValue, values }) => (
           <Form>
@@ -317,4 +317,4 @@ const AdminPanel = () => {
   );
 };
 
-export default AdminPanel;
+export default AddVehicle;
