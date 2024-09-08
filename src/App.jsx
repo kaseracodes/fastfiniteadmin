@@ -4,6 +4,7 @@ import AddVehicle from "./AddVehicle";
 import BookingsList from "./BookingsList"
 import UsersList from "./UsersList"
 import VehiclesList from "./VehiclesList";
+import UpdateVehicle from './UpdateVehicle';
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
         <Route path="/bookings" element={<BookingsList />} />
         <Route path="/users" element={<UsersList />} />
         <Route path="/vehicles" element={<VehiclesList />} />
+        <Route path="/updatevehicle/:id" element={<UpdateVehicle />} />
         {/* <Route path="/admin" element={<AdminPanel />} /> */}
       </Routes>
     </Router>
