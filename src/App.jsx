@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AddVehicle from "./AddVehicle";
 import BookingsList from "./BookingsList"
 import UsersList from "./UsersList"
+import VehiclesList from "./VehiclesList";
 
 const App = () => {
   return (
@@ -11,6 +12,7 @@ const App = () => {
         <Route path="/addvehicle" element={<AddVehicle />} />
         <Route path="/bookings" element={<BookingsList />} />
         <Route path="/users" element={<UsersList />} />
+        <Route path="/vehicles" element={<VehiclesList />} />
         {/* <Route path="/admin" element={<AdminPanel />} /> */}
       </Routes>
     </Router>
