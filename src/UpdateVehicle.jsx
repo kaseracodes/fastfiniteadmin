@@ -1,69 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Formik, Field, Form } from "formik";
 import { db, storage } from "./firebaseConfig";
-import { collection, doc, setDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { v4 as uuidv4 } from "uuid";
-import "./AdminPanel.css";
+import { useParams, useNavigate } from "react-router-dom";
+import "./UpdateVehicle.css";
 
-const AdminPanel = () => {
+const UpdateVehicle = () => {
+  const { id } = useParams(); // get vehicle id from the route
+  const navigate = useNavigate();
   const [imageUrl, setImageUrl] = useState("");
   const [vehicleType, setVehicleType] = useState("");
+  const [initialValues, setInitialValues] = useState(null);
 
-  const initialValues = {
-    // Identification and Location Features
-    image: "",
-    name: "",
-    brand: "",
-    city: "",
-    pickup_point: "",
-    position: [0, 0],
+  useEffect(() => {
+    const fetchVehicleData = async () => {
+      const vehicleRef = doc(db, "vehicles", id);
+      const vehicleSnap = await getDoc(vehicleRef);
 
-    // Type Independent Features
-    make_year: "",
-    top_speed: "",
-    kerb_weight: "",
-    seats: "",
+      if (vehicleSnap.exists()) {
+        const vehicleData = vehicleSnap.data();
+        setInitialValues(vehicleData);
+        setImageUrl(vehicleData.image);
+        setVehicleType(vehicleData.type);
+      }
+    };
 
-    // Type Dependent Features
-    type: "",
-    // Features relevant to Petrol Scooter and Petrol Bike
-    mileage: "",
-    displacement: "",
-    fuel_tank_capacity: "",
-    // Features relevant to E-Scooter
-    range: "",
-    battery_capacity: "",
-    charging_time: "",
-
-    // Pricing Details
-    late_penalty: "",
-    package: {
-      daily: {
-        price: "",
-        deposit: "",
-      },
-      weekly: {
-        price: "",
-        deposit: "",
-      },
-      monthly: {
-        price: "",
-        deposit: "",
-      },
-    },
-  };
+    fetchVehicleData();
+  }, [id]);
 
   const handleSubmit = async (values) => {
     try {
-      const id = uuidv4();
       if (imageUrl) {
         values.image = imageUrl;
       }
-      await setDoc(doc(collection(db, "vehicles"), id), { ...values, id });
-      alert("Data successfully written!");
+      await updateDoc(doc(db, "vehicles", id), values);
+      alert("Vehicle updated successfully!");
+      navigate("/vehicles");
     } catch (error) {
-      console.error("Error writing document: ", error);
+      console.error("Error updating document: ", error);
     }
   };
 
@@ -78,9 +53,11 @@ const AdminPanel = () => {
     });
   };
 
+  if (!initialValues) return <div>Loading...</div>;
+
   return (
     <div className="admin-panel-container">
-      <h1>Admin Panel</h1>
+      <h1>Update Vehicle</h1>
       <Formik initialValues={initialValues} onSubmit={handleSubmit}>
         {({ setFieldValue, values }) => (
           <Form>
@@ -94,6 +71,7 @@ const AdminPanel = () => {
                   type="file"
                   onChange={(e) => handleImageUpload(e, setFieldValue)}
                 />
+                {imageUrl && <img src={imageUrl} alt="Vehicle" />}
               </div>
 
               <div className="form-group name-group">
@@ -307,9 +285,11 @@ const AdminPanel = () => {
               </div>
             </div>
 
-            <button type="submit" className="submit-button">
-              Submit
-            </button>
+            <div className="submit-btn-container">
+              <button type="submit" className="submit-btn">
+                Update Vehicle
+              </button>
+            </div>
           </Form>
         )}
       </Formik>
@@ -317,4 +297,4 @@ const AdminPanel = () => {
   );
 };
 
-export default AdminPanel;
+export default UpdateVehicle;
