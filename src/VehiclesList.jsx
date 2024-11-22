@@ -300,8 +300,8 @@ const PremiumBikesTable = ({ vehicles }) => {
             <td>{vehicle.displacement}</td>
             <td>{vehicle.fuel_tank_capacity}</td>
             <td>{vehicle.late_penalty}</td>
-            <td>{vehicle.package.hourly.price}</td>
-            <td>{vehicle.package.hourly.deposit}</td>
+            {/* <td>{vehicle.package.hourly.price}</td>
+            <td>{vehicle.package.hourly.deposit}</td> */}
             <td>{vehicle.package.daily.price}</td>
             <td>{vehicle.package.daily.deposit}</td>
             <td>{vehicle.package.weekly.price}</td>
@@ -333,6 +333,8 @@ const VehiclesList = () => {
       const petrolBikes = vehiclesData.filter(vehicle => vehicle.type === "petrolBike");
       const premiumBikes = vehiclesData.filter(vehicle => vehicle.type === "premiumBike");
       const eScooters = vehiclesData.filter(vehicle => vehicle.type === "eScooter");
+
+      console.log(premiumBikes);
 
       setPetrolScooters(petrolScooters);
       setPetrolBikes(petrolBikes);

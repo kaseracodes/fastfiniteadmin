@@ -1,0 +1,74 @@
+/* Navbar container styling */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #FDD505; /* Deep blue color */
+    padding: 10px 20px;
+    color: black;
+    font-family: "Arial", sans-serif;
+    margin-bottom: 30px;
+  }
+  
+  .navbar-left .logo-container {
+    text-decoration: none;
+  }
+
+  /* Logo styling */
+  .navbar-left .logo {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  /* User and logout button container */
+  .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  /* User email text styling */
+  .user-email {
+    font-size: 14px;
+    color: black; /* Light gray for contrast */
+    font-weight: 600;
+  }
+  
+  /* Logout button styling */
+  .logout-button {
+    background-color: #ff4d4d; /* Red button for logout */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+  }
+  
+  .logout-button:hover {
+    background-color: #e60000; /* Darker red on hover */
+  }
+  
+  /* Responsive design */
+  @media screen and (max-width: 600px) {
+    .navbar {
+      flex-direction: column;
+      gap: 10px;
+    }
+  
+    .navbar-left .logo {
+      font-size: 20px;
+    }
+  
+    .user-email {
+      font-size: 12px;
+    }
+  
+    .logout-button {
+      font-size: 12px;
+      padding: 4px 8px;
+    }
+  }
+  
