@@ -4,10 +4,8 @@ import { AuthProvider, useAuth } from "./AuthContext";
 import Navbar from "./Navbar"; // Import Navbar component
 import Login from "./Login";
 import AddVehicle from "./AddVehicle";
-import BookingsList from "./BookingsList";
 import UsersList from "./UsersList";
 import BookingsList from "./BookingsList";
-import UsersList from "./UsersList";
 import VehiclesList from "./VehiclesList";
 import UpdateVehicle from "./UpdateVehicle";
 import Home from "./Home";
