@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { db } from "./firebaseConfig"; // Firestore configuration
@@ -11,7 +11,14 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const { login, logout } = useAuth();
+  const { user, login, logout } = useAuth();
+
+  // Redirect logged-in users away from login/signup pages
+  useEffect(() => {
+    if (user) {
+      navigate("/"); // Redirect to the home page or dashboard
+    }
+  }, [user, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import "./Signup.css";
@@ -9,7 +9,14 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const { signup } = useAuth();
+  const { user, signup } = useAuth();
+
+  // Redirect logged-in users away from login/signup pages
+  useEffect(() => {
+    if (user) {
+      navigate("/"); // Redirect to the home page or dashboard
+    }
+  }, [user, navigate]);
 
   const handleSignup = async (e) => {
     e.preventDefault();
