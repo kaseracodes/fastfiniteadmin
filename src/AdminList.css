@@ -1,0 +1,107 @@
+.admins-list {
+    padding: 20px;
+  }
+  
+  .admins-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 40px;
+  }
+  
+  .admins-table th, .admins-table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  .admins-table th {
+    background-color: #FDD505;
+    color: rgb(0, 0, 0);
+  }
+  
+  .admins-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  .admins-table tr:hover {
+    background-color: #ddd;
+  }
+  
+  .actions-header {
+    width: 280px;
+    text-align: center; /* Optional: Center-align the text */
+  }
+
+  .update-button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  .update-button:hover {
+    background-color: #0056b3;
+  }
+  
+  h2 {
+    margin-top: 40px;
+    font-size: 24px;
+    color: #333;
+  }
+  .admin-list {
+    padding: 20px;
+  }
+  
+  .admins-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  .admins-table th, .admins-table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  .admins-table th {
+    background-color: #FDD505;
+    color: black;
+  }
+  
+  .admins-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .admins-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .delete-btn {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-left: 5px;
+    /* margin-top: 20px; */
+  }
+  
+  .delete-btn:hover {
+    background-color: darkred;
+  }
+  
+  button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+    

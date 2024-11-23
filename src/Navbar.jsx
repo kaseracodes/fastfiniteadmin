@@ -5,10 +5,12 @@ import { useAuth } from "./AuthContext";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
       await logout();
+      navigate('/login');
     } catch (err) {
       console.error("Error logging out:", err.message);
     }

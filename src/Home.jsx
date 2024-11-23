@@ -19,6 +19,9 @@ const Home = () => {
         <Link to="/users" className="bento-item">
           <button>View Users</button>
         </Link>
+        <Link to="/admins" className="bento-item">
+          <button>View Admins</button>
+        </Link>
       </div>
     </div>
   );

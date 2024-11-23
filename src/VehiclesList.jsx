@@ -2,28 +2,34 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getFirestore, collection, getDocs, doc, deleteDoc } from 'firebase/firestore'; // Import Firestore functions
 import { db } from "./firebaseConfig"; // Adjust path for Firebase config
+import { useAuth } from "./AuthContext";
 import './VehiclesList.css';
-
-const handleDelete = async (id) => {
-  const confirmDelete = window.confirm("Are you sure you want to delete this vehicle?");
-  if (confirmDelete) {
-    try {
-      await deleteDoc(doc(db, "vehicles", id)); // Deleting the vehicle document from Firestore
-      alert("Vehicle deleted successfully");
-      // Optionally, you can refresh the list of vehicles after deletion
-      window.location.reload(); // Simple way to reload data after delete
-    } catch (error) {
-      console.error("Error deleting vehicle: ", error);
-      alert("Failed to delete the vehicle. Please try again.");
-    }
-  }
-};
 
 const PetrolScootersTable = ({ vehicles }) => {
 
   const navigate = useNavigate();
+  const {permissions} = useAuth();
+
   const handleUpdate = (id) => {
     navigate(`/updatevehicle/${id}`);
+  };
+  const handleDelete = async (id) => {
+    if ( !permissions.includes('delete_vehicle')){
+      alert("You dont have the necessary permission to delete an vehicle");
+      return;
+    }
+    const confirmDelete = window.confirm("Are you sure you want to delete this vehicle?");
+    if (confirmDelete) {
+      try {
+        await deleteDoc(doc(db, "vehicles", id)); // Deleting the vehicle document from Firestore
+        alert("Vehicle deleted successfully");
+        // Optionally, you can refresh the list of vehicles after deletion
+        window.location.reload(); // Simple way to reload data after delete
+      } catch (error) {
+        console.error("Error deleting vehicle: ", error);
+        alert("Failed to delete the vehicle. Please try again.");
+      }
+    }
   };
 
   return (
@@ -95,8 +101,28 @@ const PetrolScootersTable = ({ vehicles }) => {
 const PetrolBikesTable = ({ vehicles }) => {
 
   const navigate = useNavigate();
+  const {permissions} = useAuth();
+
   const handleUpdate = (id) => {
     navigate(`/updatevehicle/${id}`);
+  };
+  const handleDelete = async (id) => {
+    if ( !permissions.includes('delete_vehicle')){
+      alert("You dont have the necessary permission to delete an vehicle");
+      return;
+    }
+    const confirmDelete = window.confirm("Are you sure you want to delete this vehicle?");
+    if (confirmDelete) {
+      try {
+        await deleteDoc(doc(db, "vehicles", id)); // Deleting the vehicle document from Firestore
+        alert("Vehicle deleted successfully");
+        // Optionally, you can refresh the list of vehicles after deletion
+        window.location.reload(); // Simple way to reload data after delete
+      } catch (error) {
+        console.error("Error deleting vehicle: ", error);
+        alert("Failed to delete the vehicle. Please try again.");
+      }
+    }
   };
 
   return (
@@ -168,8 +194,28 @@ const PetrolBikesTable = ({ vehicles }) => {
 const EScootersTable = ({ vehicles }) => {
   
   const navigate = useNavigate();
+  const {permissions} = useAuth();
+
   const handleUpdate = (id) => {
     navigate(`/updatevehicle/${id}`);
+  };
+  const handleDelete = async (id) => {
+    if ( !permissions.includes('delete_vehicle')){
+      alert("You dont have the necessary permission to delete an vehicle");
+      return;
+    }
+    const confirmDelete = window.confirm("Are you sure you want to delete this vehicle?");
+    if (confirmDelete) {
+      try {
+        await deleteDoc(doc(db, "vehicles", id)); // Deleting the vehicle document from Firestore
+        alert("Vehicle deleted successfully");
+        // Optionally, you can refresh the list of vehicles after deletion
+        window.location.reload(); // Simple way to reload data after delete
+      } catch (error) {
+        console.error("Error deleting vehicle: ", error);
+        alert("Failed to delete the vehicle. Please try again.");
+      }
+    }
   };
 
   return (
@@ -241,8 +287,28 @@ const EScootersTable = ({ vehicles }) => {
 const PremiumBikesTable = ({ vehicles }) => {
   
   const navigate = useNavigate();
+  const {permissions} = useAuth();
+  
   const handleUpdate = (id) => {
     navigate(`/updatevehicle/${id}`);
+  };
+  const handleDelete = async (id) => {
+    if ( !permissions.includes('delete_vehicle')){
+      alert("You dont have the necessary permission to delete an vehicle");
+      return;
+    }
+    const confirmDelete = window.confirm("Are you sure you want to delete this vehicle?");
+    if (confirmDelete) {
+      try {
+        await deleteDoc(doc(db, "vehicles", id)); // Deleting the vehicle document from Firestore
+        alert("Vehicle deleted successfully");
+        // Optionally, you can refresh the list of vehicles after deletion
+        window.location.reload(); // Simple way to reload data after delete
+      } catch (error) {
+        console.error("Error deleting vehicle: ", error);
+        alert("Failed to delete the vehicle. Please try again.");
+      }
+    }
   };
 
   return (
@@ -357,7 +423,7 @@ const VehiclesList = () => {
     <div className="vehicles-list">
 
       <h2>E-Scooters</h2>
-      <EScootersTable vehicles={eScooters} />
+      <EScootersTable vehicles={eScooters}/>
 
       <h2>Petrol Scooters</h2>
       <PetrolScootersTable vehicles={petrolScooters} />

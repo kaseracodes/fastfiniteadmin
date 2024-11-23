@@ -1,31 +1,17 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./AuthContext";
-import Navbar from "./Navbar"; // Import Navbar component
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./AuthContext";
+import ProtectedRoute from "./ProtectedRoute";
 import Login from "./Login";
+import Signup from "./Signup";
+import Home from "./Home";
 import AddVehicle from "./AddVehicle";
-import UsersList from "./UsersList";
 import BookingsList from "./BookingsList";
+import UsersList from "./UsersList";
 import VehiclesList from "./VehiclesList";
 import UpdateVehicle from "./UpdateVehicle";
-import Home from "./Home";
-import Signup from "./Signup";
-
-// A layout wrapper for authenticated pages
-const AuthenticatedLayout = ({ children }) => {
-  return (
-    <>
-      <Navbar /> {/* Include Navbar */}
-      <main>{children}</main>
-    </>
-  );
-};
-
-// A ProtectedRoute that redirects unauthenticated users to the login page
-const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
-  return user ? children : <Navigate to="/login" />;
-};
+import AdminList from "./AdminList";
+import UpdatePermissions from "./UpdatePermissions";
 
 const App = () => {
   return (
@@ -36,64 +22,68 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
-          {/* Protected Routes with Authenticated Layout */}
+          {/* Protected Routes */}
           <Route
             path="/"
             element={
               <ProtectedRoute>
-                <AuthenticatedLayout>
-                  <Home />
-                </AuthenticatedLayout>
+                <Home />
               </ProtectedRoute>
             }
           />
           <Route
             path="/addvehicle"
             element={
-              <ProtectedRoute>
-                <AuthenticatedLayout>
-                  <AddVehicle />
-                </AuthenticatedLayout>
+              <ProtectedRoute permission="add_vehicle">
+                <AddVehicle />
               </ProtectedRoute>
             }
           />
           <Route
             path="/bookings"
             element={
-              <ProtectedRoute>
-                <AuthenticatedLayout>
-                  <BookingsList />
-                </AuthenticatedLayout>
+              <ProtectedRoute permission="view_bookings">
+                <BookingsList />
               </ProtectedRoute>
             }
           />
           <Route
             path="/users"
             element={
-              <ProtectedRoute>
-                <AuthenticatedLayout>
-                  <UsersList />
-                </AuthenticatedLayout>
+              <ProtectedRoute permission="view_users">
+                <UsersList />
               </ProtectedRoute>
             }
           />
           <Route
             path="/vehicles"
             element={
-              <ProtectedRoute>
-                <AuthenticatedLayout>
-                  <VehiclesList />
-                </AuthenticatedLayout>
+              <ProtectedRoute permission="view_vehicle">
+                <VehiclesList />
               </ProtectedRoute>
             }
           />
           <Route
             path="/updatevehicle/:id"
             element={
-              <ProtectedRoute>
-                <AuthenticatedLayout>
-                  <UpdateVehicle />
-                </AuthenticatedLayout>
+              <ProtectedRoute permission="update_vehicle">
+                <UpdateVehicle />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admins"
+            element={
+              <ProtectedRoute permission="view_admins">
+                  <AdminList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/updatepermissions/:id"
+            element={
+              <ProtectedRoute permission="update_permissions">
+                  <UpdatePermissions />
               </ProtectedRoute>
             }
           />
