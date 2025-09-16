@@ -25,7 +25,7 @@ const UpdatePermissions = () => {
     fetchAdminData();
   }, [id]);
 
-  const availablePermissions = ['add_vehicle', 'view_vehicle', 'update_vehicle', 'delete_vehicle', 'view_users', 'view_admins', 'update_permissions', 'view_bookings', 'delete_admin', 'update_banners', 'add_banners', 'delete_banner' ]; // You can add more permissions
+  const availablePermissions = ['add_vehicle', 'view_vehicle', 'update_vehicle', 'delete_vehicle', 'view_users', 'view_admins', 'update_permissions', 'view_bookings', 'delete_admin', 'update_banners', 'add_banners', 'delete_banner', 'toggle_bookings' ]; // You can add more permissions
 
   const handleCheckboxChange = (permission) => {
     // console.log(selectedPermissions);
