@@ -12,6 +12,9 @@ import VehiclesList from "./VehiclesList";
 import UpdateVehicle from "./UpdateVehicle";
 import AdminList from "./AdminList";
 import UpdatePermissions from "./UpdatePermissions";
+import Banners from "./Banners";
+import AddBanner from "./AddBanner";
+import UpdateBanner from "./UpdateBanner";
 
 const App = () => {
   return (
@@ -76,6 +79,30 @@ const App = () => {
             element={
               <ProtectedRoute permission="view_admins">
                   <AdminList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/banners"
+            element={
+              
+                  <Banners />
+              
+            }
+          />
+          <Route
+            path="/addbanner"
+            element={
+              <ProtectedRoute permission="add_banners">
+                  <AddBanner/>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/updatebanner/:id"
+            element={
+              <ProtectedRoute permission="update_banners">
+                <UpdateBanner/>
               </ProtectedRoute>
             }
           />

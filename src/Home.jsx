@@ -22,6 +22,9 @@ const Home = () => {
         <Link to="/admins" className="bento-item">
           <button>View Admins</button>
         </Link>
+        <Link to="/banners" className="bento-item">
+          <button>Banners</button>
+        </Link>
       </div>
     </div>
   );
