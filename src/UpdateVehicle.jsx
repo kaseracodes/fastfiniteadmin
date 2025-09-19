@@ -7,11 +7,16 @@ import { useParams, useNavigate } from "react-router-dom";
 import "./UpdateVehicle.css";
 
 const UpdateVehicle = () => {
-  const { id } = useParams(); // get vehicle id from the route
+  const { id } = useParams();
   const navigate = useNavigate();
   const [imageUrl, setImageUrl] = useState("");
   const [vehicleType, setVehicleType] = useState("");
   const [initialValues, setInitialValues] = useState(null);
+  
+  // ADD: Date states for custom pricing
+  const [customStartDate, setCustomStartDate] = useState("");
+  const [customEndDate, setCustomEndDate] = useState("");
+  const [dateRangeDuration, setDateRangeDuration] = useState(null);
 
   useEffect(() => {
     const fetchVehicleData = async () => {
@@ -20,9 +25,39 @@ const UpdateVehicle = () => {
 
       if (vehicleSnap.exists()) {
         const vehicleData = vehicleSnap.data();
-        setInitialValues(vehicleData);
+        
+        // UPDATED: Ensure customPricing structure exists
+        const processedData = {
+          ...vehicleData,
+          customPricing: vehicleData.customPricing || {
+            startDate: "",
+            endDate: "",
+            dailyPrice: "",
+            weeklyPrice: "",
+            monthlyPrice: "",
+          }
+        };
+        
+        setInitialValues(processedData);
         setImageUrl(vehicleData.image);
         setVehicleType(vehicleData.type);
+        
+        // ADD: Set custom pricing dates if they exist
+        if (vehicleData.customPricing?.startDate) {
+          setCustomStartDate(vehicleData.customPricing.startDate);
+        }
+        if (vehicleData.customPricing?.endDate) {
+          setCustomEndDate(vehicleData.customPricing.endDate);
+        }
+        
+        // ADD: Calculate initial duration if dates exist
+        if (vehicleData.customPricing?.startDate && vehicleData.customPricing?.endDate) {
+          const duration = calculateDateRangeDuration(
+            vehicleData.customPricing.startDate,
+            vehicleData.customPricing.endDate
+          );
+          setDateRangeDuration(duration);
+        }
       }
     };
 
@@ -34,6 +69,13 @@ const UpdateVehicle = () => {
       if (imageUrl) {
         values.image = imageUrl;
       }
+
+      // ADD: Add date range info to custom pricing
+      if (customStartDate && customEndDate) {
+        values.customPricing.startDate = customStartDate;
+        values.customPricing.endDate = customEndDate;
+      }
+
       await updateDoc(doc(db, "vehicles", id), values);
       alert("Vehicle updated successfully!");
       navigate("/vehicles");
@@ -53,12 +95,107 @@ const UpdateVehicle = () => {
     });
   };
 
+  // ADD: Calculate date range duration and determine pricing options
+  const calculateDateRangeDuration = (startDate, endDate) => {
+    if (!startDate || !endDate) return null;
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffInMs = end - start;
+    const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
+    const diffInWeeks = Math.floor(diffInDays / 7);
+    const diffInMonths = Math.floor(diffInDays / 30);
+
+    return {
+      days: diffInDays,
+      weeks: diffInWeeks,
+      months: diffInMonths,
+      showDaily: true,
+      showWeekly: diffInDays >= 7,
+      showMonthly: diffInDays >= 30,
+    };
+  };
+
+  // ADD: Handle date changes
+  const handleStartDateChange = (e) => {
+    const newDate = e.target.value;
+    setCustomStartDate(newDate);
+    if (newDate && customEndDate) {
+      const duration = calculateDateRangeDuration(newDate, customEndDate);
+      setDateRangeDuration(duration);
+    }
+  };
+
+  const handleEndDateChange = (e) => {
+    const newDate = e.target.value;
+    setCustomEndDate(newDate);
+    if (customStartDate && newDate) {
+      const duration = calculateDateRangeDuration(customStartDate, newDate);
+      setDateRangeDuration(duration);
+    }
+  };
+
+  // ADD: Render custom pricing fields based on duration
+  const renderCustomPricingFields = () => {
+    if (!dateRangeDuration) return null;
+
+    const { days, weeks, months, showDaily, showWeekly, showMonthly } = dateRangeDuration;
+
+    return (
+      <div className="dynamic-pricing-fields">
+        <div className="duration-info">
+          <p className="duration-text">
+            Duration: {days} day{days !== 1 ? 's' : ''} 
+            {weeks > 0 && ` (${weeks} week${weeks !== 1 ? 's' : ''})`}
+            {months > 0 && ` (${months} month${months !== 1 ? 's' : ''})`}
+          </p>
+        </div>
+
+        {showDaily && (
+          <div className="form-group custom-daily-price-group">
+            <label htmlFor="customPricing.dailyPrice">Custom Daily Price</label>
+            <Field
+              name="customPricing.dailyPrice"
+              type="text"
+              placeholder="Enter daily price for this period"
+              className="field-array"
+            />
+          </div>
+        )}
+
+        {showWeekly && (
+          <div className="form-group custom-weekly-price-group">
+            <label htmlFor="customPricing.weeklyPrice">Custom Weekly Price</label>
+            <Field
+              name="customPricing.weeklyPrice"
+              type="text"
+              placeholder="Enter weekly price for this period"
+              className="field-array"
+            />
+          </div>
+        )}
+
+        {showMonthly && (
+          <div className="form-group custom-monthly-price-group">
+            <label htmlFor="customPricing.monthlyPrice">Custom Monthly Price</label>
+            <Field
+              name="customPricing.monthlyPrice"
+              type="text"
+              placeholder="Enter monthly price for this period"
+              className="field-array"
+            />
+          </div>
+        )}
+      </div>
+    );
+  };
+
   if (!initialValues) return <div>Loading...</div>;
 
   return (
     <div className="admin-panel-container">
       <h1>Update Vehicle</h1>
-      <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+      <Formik initialValues={initialValues} enableReinitialize={true} onSubmit={handleSubmit}>
         {({ setFieldValue, values }) => (
           <Form>
             {/* Identification and Location Features */}
@@ -198,9 +335,9 @@ const UpdateVehicle = () => {
               )}
             </div>
 
-            {/* Pricing Details */}
+            {/* Standard Pricing Details */}
             <div className="pricing-details">
-              <h2>Pricing Details</h2>
+              <h2>Standard Pricing Details</h2>
               <div className="form-group late-penalty-group">
                 <label htmlFor="late_penalty">Late Penalty</label>
                 <Field name="late_penalty" type="text" />
@@ -283,6 +420,42 @@ const UpdateVehicle = () => {
                   className="field-array"
                 />
               </div>
+            </div>
+
+            {/* ADD: Custom Pricing with Native Date Inputs */}
+            <div className="pricing-details">
+              <h2>Custom Pricing Details (Optional)</h2>
+              <p className="section-description">
+                Select date range for custom pricing. Pricing options will appear based on the duration selected.
+              </p>
+
+              <div className="custom-date-inputs">
+                <div className="form-group custom-start-date-group">
+                  <label htmlFor="customStartDate">Custom Pricing Start Date & Time</label>
+                  <input
+                    id="customStartDate"
+                    type="datetime-local"
+                    value={customStartDate}
+                    onChange={handleStartDateChange}
+                    className="field-array"
+                    min={new Date().toISOString().slice(0, 16)}
+                  />
+                </div>
+
+                <div className="form-group custom-end-date-group">
+                  <label htmlFor="customEndDate">Custom Pricing End Date & Time</label>
+                  <input
+                    id="customEndDate"
+                    type="datetime-local"
+                    value={customEndDate}
+                    onChange={handleEndDateChange}
+                    className="field-array"
+                    min={customStartDate || new Date().toISOString().slice(0, 16)}
+                  />
+                </div>
+              </div>
+
+              {renderCustomPricingFields()}
             </div>
 
             <div className="submit-btn-container">
