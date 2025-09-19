@@ -3,13 +3,19 @@ import React, { useEffect, useState } from "react";
 import { Formik, Field, Form } from "formik";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import {
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
 import { db, storage } from "./firebaseConfig"; // adjust path if needed
-import "./UpdateVehicle.css"; // reuse existing CSS you already have
+import "./UpdateVehicle.css"; // reuse existing admin CSS
 
 const UpdateBanner = () => {
-  const { id } = useParams(); // banner id from route
+  const { id } = useParams();
   const navigate = useNavigate();
+
   const [initialValues, setInitialValues] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -25,15 +31,19 @@ const UpdateBanner = () => {
           return;
         }
         const data = snap.data();
+
+        // Normalize fields to match AddBanner's write shape
         setInitialValues({
-          type: data.type || "homepage_top",
+          id: snap.id,
+          type: data.type || "",
           name: data.name || "",
           altTag: data.altTag || "",
           redirectUrl: data.redirectUrl || "",
-          bannerFile: null, // local file placeholder
-          _storagePath: data.storagePath || "", // keep storage path for possible deletion
-          _currentBannerUrl: data.bannerUrl || "",
+          bannerFile: null,
+          storagePath: data.storagePath || "", // important for deletion if replaced
+          bannerUrl: data.bannerUrl || "",
         });
+
         setPreviewUrl(data.bannerUrl || "");
       } catch (err) {
         console.error("Error fetching banner:", err);
@@ -47,7 +57,10 @@ const UpdateBanner = () => {
   }, [id]);
 
   const uploadImage = async (file, filenamePrefix = "banner") => {
-    const filename = `${Date.now()}_${filenamePrefix}_${file.name}`.replace(/\s+/g, "_");
+    const filename = `${Date.now()}_${filenamePrefix}_${file.name}`.replace(
+      /\s+/g,
+      "_"
+    );
     const path = `banners/${filename}`;
     const r = storageRef(storage, path);
     await uploadBytes(r, file);
@@ -59,32 +72,36 @@ const UpdateBanner = () => {
     try {
       setUploading(true);
 
+      // build updates
       const updates = {
-        type: values.type,
-        name: values.name,
+        type: values.type || "",
+        name: values.name || "",
         altTag: values.altTag || "",
         redirectUrl: values.redirectUrl || "",
         updatedAt: serverTimestamp(),
       };
 
-      // If a new file is chosen, upload it and update bannerUrl + storagePath
+      // if new file provided -> upload & update bannerUrl + storagePath
       if (values.bannerFile) {
-        const { downloadUrl, storagePath } = await uploadImage(values.bannerFile, values.name || "banner");
+        const { downloadUrl, storagePath } = await uploadImage(
+          values.bannerFile,
+          values.name || "banner"
+        );
         updates.bannerUrl = downloadUrl;
         updates.storagePath = storagePath;
 
-        // delete old storage file (best-effort)
-        if (initialValues?._storagePath) {
+        // attempt to delete old file if it exists
+        if (initialValues?.storagePath) {
           try {
-            await deleteObject(storageRef(storage, initialValues._storagePath));
+            await deleteObject(storageRef(storage, initialValues.storagePath));
           } catch (err) {
-            console.warn("Failed to delete old banner file:", err);
-            // not fatal
+            // not fatal — log and continue
+            console.warn("Failed to delete previous banner asset:", err);
           }
         }
       }
 
-      // perform update
+      // Run update
       await updateDoc(doc(db, "banners", id), updates);
 
       alert("Banner updated successfully");
@@ -97,13 +114,15 @@ const UpdateBanner = () => {
     }
   };
 
-  if (!initialValues) return <div style={{ padding: 24 }}>Loading banner…</div>;
+  if (!initialValues) {
+    return <div style={{ padding: 24 }}>Loading banner…</div>;
+  }
 
   return (
     <div className="admin-panel-container" style={{ width: "60%", marginTop: 24 }}>
       <h1 style={{ textAlign: "center" }}>Update Banner</h1>
 
-      <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+      <Formik initialValues={initialValues} enableReinitialize onSubmit={handleSubmit}>
         {({ setFieldValue, values, isSubmitting }) => (
           <Form>
             <div className="identification-location">
@@ -112,8 +131,15 @@ const UpdateBanner = () => {
               <div className="form-group type-group">
                 <label htmlFor="type">Type</label>
                 <Field as="select" name="type">
+                  {/* placeholder as first option; for update current value will show */}
+                  <option value="" disabled>
+                    Select Banner Type
+                  </option>
                   <option value="homepage_top">Homepage Top</option>
                   <option value="homepage_mid">Homepage Mid</option>
+                  <option value="about_us_page">About Us Page</option>
+                  <option value="tours_travels_top">Tours & Travels Top</option>
+                  <option value="tours_travels_mid">Tours & Travels Mid</option>
                   <option value="vehicles">Vehicles Page</option>
                   <option value="promo_strip">Promo Strip</option>
                 </Field>
@@ -148,23 +174,40 @@ const UpdateBanner = () => {
                       const localPreview = URL.createObjectURL(file);
                       setPreviewUrl(localPreview);
                     } else {
-                      setPreviewUrl(initialValues._currentBannerUrl || "");
+                      setPreviewUrl(initialValues.bannerUrl || "");
                     }
                   }}
                 />
+
                 {previewUrl && (
                   <div style={{ marginTop: 8 }}>
                     <div style={{ fontSize: 13, color: "#666", marginBottom: 6 }}>Preview</div>
-                    <img src={previewUrl} alt="banner preview" style={{ width: "100%", maxWidth: 560, height: "auto", borderRadius: 6, objectFit: "cover" }} />
+                    <img
+                      src={previewUrl}
+                      alt="banner preview"
+                      style={{
+                        width: "100%",
+                        maxWidth: 560,
+                        height: "auto",
+                        borderRadius: 6,
+                        objectFit: "cover",
+                      }}
+                    />
                   </div>
                 )}
               </div>
             </div>
 
             <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 12 }}>
-              <button type="button" className="submit-btn" onClick={() => navigate("/banners")} disabled={uploading}>
+              <button
+                type="button"
+                className="submit-btn"
+                onClick={() => navigate("/banners")}
+                disabled={uploading}
+              >
                 Cancel
               </button>
+
               <button type="submit" className="submit-btn" disabled={isSubmitting || uploading}>
                 {uploading || isSubmitting ? "Saving…" : "Update Banner"}
               </button>
