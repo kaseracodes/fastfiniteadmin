@@ -1,7 +1,8 @@
+// src/UpdateVehicle.jsx
 import { useState, useEffect } from "react";
 import { Formik, Field, Form } from "formik";
 import { db, storage } from "./firebaseConfig";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteField } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useParams, useNavigate } from "react-router-dom";
 import "./UpdateVehicle.css";
@@ -12,57 +13,65 @@ const UpdateVehicle = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [vehicleType, setVehicleType] = useState("");
   const [initialValues, setInitialValues] = useState(null);
-  
-  // ADD: Date states for custom pricing
+
+  // Custom pricing UI state
   const [customStartDate, setCustomStartDate] = useState("");
   const [customEndDate, setCustomEndDate] = useState("");
   const [dateRangeDuration, setDateRangeDuration] = useState(null);
+  const [removingCustomPricing, setRemovingCustomPricing] = useState(false);
 
   useEffect(() => {
     const fetchVehicleData = async () => {
-      const vehicleRef = doc(db, "vehicles", id);
-      const vehicleSnap = await getDoc(vehicleRef);
+      try {
+        const vehicleRef = doc(db, "vehicles", id);
+        const vehicleSnap = await getDoc(vehicleRef);
 
-      if (vehicleSnap.exists()) {
-        const vehicleData = vehicleSnap.data();
-        
-        // UPDATED: Ensure customPricing structure exists
-        const processedData = {
-          ...vehicleData,
-          customPricing: vehicleData.customPricing || {
-            startDate: "",
-            endDate: "",
-            dailyPrice: "",
-            weeklyPrice: "",
-            monthlyPrice: "",
+        if (vehicleSnap.exists()) {
+          const vehicleData = vehicleSnap.data();
+
+          // Ensure customPricing structure exists for the form
+          const processedData = {
+            ...vehicleData,
+            customPricing: vehicleData.customPricing || {
+              startDate: "",
+              endDate: "",
+              dailyPrice: "",
+              weeklyPrice: "",
+              monthlyPrice: "",
+            },
+          };
+
+          setInitialValues(processedData);
+          setImageUrl(vehicleData.image || "");
+          setVehicleType(vehicleData.type || "");
+
+          if (vehicleData.customPricing?.startDate) {
+            setCustomStartDate(vehicleData.customPricing.startDate);
           }
-        };
-        
-        setInitialValues(processedData);
-        setImageUrl(vehicleData.image);
-        setVehicleType(vehicleData.type);
-        
-        // ADD: Set custom pricing dates if they exist
-        if (vehicleData.customPricing?.startDate) {
-          setCustomStartDate(vehicleData.customPricing.startDate);
+          if (vehicleData.customPricing?.endDate) {
+            setCustomEndDate(vehicleData.customPricing.endDate);
+          }
+
+          if (vehicleData.customPricing?.startDate && vehicleData.customPricing?.endDate) {
+            const duration = calculateDateRangeDuration(
+              vehicleData.customPricing.startDate,
+              vehicleData.customPricing.endDate
+            );
+            setDateRangeDuration(duration);
+          }
+        } else {
+          alert("Vehicle not found");
+          navigate("/vehicles");
         }
-        if (vehicleData.customPricing?.endDate) {
-          setCustomEndDate(vehicleData.customPricing.endDate);
-        }
-        
-        // ADD: Calculate initial duration if dates exist
-        if (vehicleData.customPricing?.startDate && vehicleData.customPricing?.endDate) {
-          const duration = calculateDateRangeDuration(
-            vehicleData.customPricing.startDate,
-            vehicleData.customPricing.endDate
-          );
-          setDateRangeDuration(duration);
-        }
+      } catch (err) {
+        console.error("Error fetching vehicle:", err);
+        alert("Failed to load vehicle. See console.");
+        navigate("/vehicles");
       }
     };
 
     fetchVehicleData();
-  }, [id]);
+  }, [id, navigate]);
 
   const handleSubmit = async (values) => {
     try {
@@ -70,10 +79,13 @@ const UpdateVehicle = () => {
         values.image = imageUrl;
       }
 
-      // ADD: Add date range info to custom pricing
+      // Add/overwrite date range info into customPricing if present
       if (customStartDate && customEndDate) {
-        values.customPricing.startDate = customStartDate;
-        values.customPricing.endDate = customEndDate;
+        values.customPricing = {
+          ...(values.customPricing || {}),
+          startDate: customStartDate,
+          endDate: customEndDate,
+        };
       }
 
       await updateDoc(doc(db, "vehicles", id), values);
@@ -81,24 +93,28 @@ const UpdateVehicle = () => {
       navigate("/vehicles");
     } catch (error) {
       console.error("Error updating document: ", error);
+      alert("Failed to update vehicle. See console.");
     }
   };
 
   const handleImageUpload = (e, setFieldValue) => {
     const file = e.target.files[0];
-    const storageRef = ref(storage, `images/${file.name}`);
-    uploadBytes(storageRef, file).then((snapshot) => {
-      getDownloadURL(snapshot.ref).then((downloadURL) => {
+    if (!file) return;
+    const storageReference = ref(storage, `images/${Date.now()}_${file.name}`);
+    uploadBytes(storageReference, file)
+      .then((snapshot) => getDownloadURL(snapshot.ref))
+      .then((downloadURL) => {
         setImageUrl(downloadURL);
         setFieldValue("image", downloadURL);
+      })
+      .catch((err) => {
+        console.error("Image upload failed", err);
+        alert("Image upload failed. See console.");
       });
-    });
   };
 
-  // ADD: Calculate date range duration and determine pricing options
   const calculateDateRangeDuration = (startDate, endDate) => {
     if (!startDate || !endDate) return null;
-
     const start = new Date(startDate);
     const end = new Date(endDate);
     const diffInMs = end - start;
@@ -116,7 +132,6 @@ const UpdateVehicle = () => {
     };
   };
 
-  // ADD: Handle date changes
   const handleStartDateChange = (e) => {
     const newDate = e.target.value;
     setCustomStartDate(newDate);
@@ -135,7 +150,6 @@ const UpdateVehicle = () => {
     }
   };
 
-  // ADD: Render custom pricing fields based on duration
   const renderCustomPricingFields = () => {
     if (!dateRangeDuration) return null;
 
@@ -145,9 +159,9 @@ const UpdateVehicle = () => {
       <div className="dynamic-pricing-fields">
         <div className="duration-info">
           <p className="duration-text">
-            Duration: {days} day{days !== 1 ? 's' : ''} 
-            {weeks > 0 && ` (${weeks} week${weeks !== 1 ? 's' : ''})`}
-            {months > 0 && ` (${months} month${months !== 1 ? 's' : ''})`}
+            Duration: {days} day{days !== 1 ? "s" : ""}
+            {weeks > 0 && ` (${weeks} week${weeks !== 1 ? "s" : ""})`}
+            {months > 0 && ` (${months} month${months !== 1 ? "s" : ""})`}
           </p>
         </div>
 
@@ -190,6 +204,55 @@ const UpdateVehicle = () => {
     );
   };
 
+  // Remove custom pricing handler (minimal change)
+  const handleRemoveCustomPricing = async (formikSetFieldValue) => {
+    const ok = window.confirm(
+      "Are you sure you want to remove custom pricing for this vehicle? This action cannot be undone."
+    );
+    if (!ok) return;
+
+    setRemovingCustomPricing(true);
+    try {
+      await updateDoc(doc(db, "vehicles", id), {
+        customPricing: deleteField(),
+      });
+
+      // update local UI & formik fields
+      setCustomStartDate("");
+      setCustomEndDate("");
+      setDateRangeDuration(null);
+
+      if (formikSetFieldValue) {
+        formikSetFieldValue("customPricing", {
+          startDate: "",
+          endDate: "",
+          dailyPrice: "",
+          weeklyPrice: "",
+          monthlyPrice: "",
+        });
+      }
+
+      // Also update initialValues so the remove button hides if component doesn't reload
+      setInitialValues((prev) => ({
+        ...prev,
+        customPricing: {
+          startDate: "",
+          endDate: "",
+          dailyPrice: "",
+          weeklyPrice: "",
+          monthlyPrice: "",
+        },
+      }));
+
+      alert("Custom pricing removed successfully.");
+    } catch (err) {
+      console.error("Failed to remove custom pricing:", err);
+      alert("Failed to remove custom pricing. See console.");
+    } finally {
+      setRemovingCustomPricing(false);
+    }
+  };
+
   if (!initialValues) return <div>Loading...</div>;
 
   return (
@@ -208,7 +271,7 @@ const UpdateVehicle = () => {
                   type="file"
                   onChange={(e) => handleImageUpload(e, setFieldValue)}
                 />
-                {imageUrl && <img src={imageUrl} alt="Vehicle" />}
+                {imageUrl && <img src={imageUrl} alt="Vehicle" style={{ maxWidth: 240, marginTop: 8 }} />}
               </div>
 
               <div className="form-group name-group">
@@ -292,9 +355,7 @@ const UpdateVehicle = () => {
                 </Field>
               </div>
 
-              {["petrolScooter", "petrolBike", "premiumBike"].includes(
-                vehicleType
-              ) && (
+              {["petrolScooter", "petrolBike", "premiumBike"].includes(vehicleType) && (
                 <>
                   <div className="form-group mileage-group">
                     <label htmlFor="mileage">Mileage</label>
@@ -307,9 +368,7 @@ const UpdateVehicle = () => {
                   </div>
 
                   <div className="form-group fuel-tank-capacity-group">
-                    <label htmlFor="fuel_tank_capacity">
-                      Fuel Tank Capacity
-                    </label>
+                    <label htmlFor="fuel_tank_capacity">Fuel Tank Capacity</label>
                     <Field name="fuel_tank_capacity" type="text" />
                   </div>
                 </>
@@ -347,82 +406,48 @@ const UpdateVehicle = () => {
                 <>
                   <div className="form-group hourly-price-group">
                     <label htmlFor="package.hourly.price">Hourly Price</label>
-                    <Field
-                      name="package.hourly.price"
-                      type="text"
-                      className="field-array"
-                    />
+                    <Field name="package.hourly.price" type="text" className="field-array" />
                   </div>
 
                   <div className="form-group hourly-deposit-group">
-                    <label htmlFor="package.hourly.deposit">
-                      Hourly Deposit
-                    </label>
-                    <Field
-                      name="package.hourly.deposit"
-                      type="text"
-                      className="field-array"
-                    />
+                    <label htmlFor="package.hourly.deposit">Hourly Deposit</label>
+                    <Field name="package.hourly.deposit" type="text" className="field-array" />
                   </div>
                 </>
               )}
 
               <div className="form-group daily-price-group">
                 <label htmlFor="package.daily.price">Daily Price</label>
-                <Field
-                  name="package.daily.price"
-                  type="text"
-                  className="field-array"
-                />
+                <Field name="package.daily.price" type="text" className="field-array" />
               </div>
 
               <div className="form-group daily-deposit-group">
                 <label htmlFor="package.daily.deposit">Daily Deposit</label>
-                <Field
-                  name="package.daily.deposit"
-                  type="text"
-                  className="field-array"
-                />
+                <Field name="package.daily.deposit" type="text" className="field-array" />
               </div>
 
               <div className="form-group weekly-price-group">
                 <label htmlFor="package.weekly.price">Weekly Price</label>
-                <Field
-                  name="package.weekly.price"
-                  type="text"
-                  className="field-array"
-                />
+                <Field name="package.weekly.price" type="text" className="field-array" />
               </div>
 
               <div className="form-group weekly-deposit-group">
                 <label htmlFor="package.weekly.deposit">Weekly Deposit</label>
-                <Field
-                  name="package.weekly.deposit"
-                  type="text"
-                  className="field-array"
-                />
+                <Field name="package.weekly.deposit" type="text" className="field-array" />
               </div>
 
               <div className="form-group monthly-price-group">
                 <label htmlFor="package.monthly.price">Monthly Price</label>
-                <Field
-                  name="package.monthly.price"
-                  type="text"
-                  className="field-array"
-                />
+                <Field name="package.monthly.price" type="text" className="field-array" />
               </div>
 
               <div className="form-group monthly-deposit-group">
                 <label htmlFor="package.monthly.deposit">Monthly Deposit</label>
-                <Field
-                  name="package.monthly.deposit"
-                  type="text"
-                  className="field-array"
-                />
+                <Field name="package.monthly.deposit" type="text" className="field-array" />
               </div>
             </div>
 
-            {/* ADD: Custom Pricing with Native Date Inputs */}
+            {/* Custom Pricing */}
             <div className="pricing-details">
               <h2>Custom Pricing Details (Optional)</h2>
               <p className="section-description">
@@ -456,9 +481,24 @@ const UpdateVehicle = () => {
               </div>
 
               {renderCustomPricingFields()}
+
+              {/* Remove custom pricing button: show only if there is existing custom pricing */}
+              {initialValues?.customPricing && (initialValues.customPricing.startDate || initialValues.customPricing.dailyPrice || initialValues.customPricing.weeklyPrice || initialValues.customPricing.monthlyPrice) && (
+                <div style={{ marginTop: 12 }}>
+                  <button
+                    type="button"
+                    className="submit-btn"
+                    onClick={() => handleRemoveCustomPricing(setFieldValue)}
+                    disabled={removingCustomPricing}
+                    style={{ background: "#d9534f", borderColor: "#d43f3a" }}
+                  >
+                    {removingCustomPricing ? "Removing..." : "Remove Custom Pricing"}
+                  </button>
+                </div>
+              )}
             </div>
 
-            <div className="submit-btn-container">
+            <div className="submit-btn-container" style={{ marginTop: 18 }}>
               <button type="submit" className="submit-btn">
                 Update Vehicle
               </button>
