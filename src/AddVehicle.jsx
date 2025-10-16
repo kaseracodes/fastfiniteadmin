@@ -44,6 +44,10 @@ const AddVehicle = () => {
     // Standard Pricing Details
     late_penalty: "",
     package: {
+      hourly: { 
+        price: "", 
+        deposit: ""
+      },
       daily: {
         price: "",
         deposit: "",
@@ -80,7 +84,10 @@ const AddVehicle = () => {
         values.customPricing.startDate = customStartDate;
         values.customPricing.endDate = customEndDate;
       }
-
+      if (values.type !== "premiumBike") {
+        delete values.package.hourly;
+      }
+  
       await setDoc(doc(collection(db, "vehicles"), id), { ...values, id });
       alert("Data successfully written!");
     } catch (error) {
