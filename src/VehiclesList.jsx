@@ -366,8 +366,8 @@ const PremiumBikesTable = ({ vehicles }) => {
             <td>{vehicle.displacement}</td>
             <td>{vehicle.fuel_tank_capacity}</td>
             <td>{vehicle.late_penalty}</td>
-            {/* <td>{vehicle.package.hourly.price}</td>
-            <td>{vehicle.package.hourly.deposit}</td> */}
+            <td>{vehicle.package.hourly.price}</td>
+            <td>{vehicle.package.hourly.deposit}</td>
             <td>{vehicle.package.daily.price}</td>
             <td>{vehicle.package.daily.deposit}</td>
             <td>{vehicle.package.weekly.price}</td>

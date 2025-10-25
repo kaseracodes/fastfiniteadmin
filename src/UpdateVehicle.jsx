@@ -32,6 +32,14 @@ const UpdateVehicle = () => {
           // Ensure customPricing structure exists for the form
           const processedData = {
             ...vehicleData,
+            package: {
+              ...(vehicleData.type === "premiumBike" && {
+                hourly: vehicleData.package?.hourly || { price: "", deposit: "" }
+              }),
+              daily: vehicleData.package?.daily || { price: "", deposit: "" },
+              weekly: vehicleData.package?.weekly || { price: "", deposit: "" },
+              monthly: vehicleData.package?.monthly || { price: "", deposit: "" },
+            },
             customPricing: vehicleData.customPricing || {
               startDate: "",
               endDate: "",
